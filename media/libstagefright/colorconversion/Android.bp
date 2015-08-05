@@ -28,4 +28,11 @@ cc_library_static {
             cfi: true,
         },
     },
+    product_variables: {
+        lineage: {
+            exynos4_enhancements: {
+                cflags: ["-DEXYNOS4_ENHANCEMENTS"],
+            },
+        },
+    },
 }
