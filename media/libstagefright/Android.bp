@@ -136,9 +136,9 @@ cc_library_shared {
 
     cflags: [
         "-Wno-multichar",
-        "-Werror",
         "-Wno-error=deprecated-declarations",
         "-Wall",
+        "-DMETADATA_CAMERA_SOURCE",
     ],
 
     product_variables: {

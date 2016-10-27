@@ -56,10 +56,14 @@ LOCAL_C_INCLUDES :=                                                 \
     $(LOCAL_PATH)/include/media                              \
     frameworks/av/include/camera                             \
     frameworks/native/include/media/openmax                  \
-    frameworks/native/include/media/hardware                 \
     external/tremolo/Tremolo                                 \
 
-LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall
+ifneq ($(TARGET_HAS_LEGACY_CAMERA_HAL1), true)
+LOCAL_C_INCLUDES += \
+    $(TOP)/frameworks/native/include/media/hardware
+endif
+
+LOCAL_CFLAGS += -Werror -Wno-error=deprecated-declarations -Wall -DMETADATA_CAMERA_SOURCE
 
 LOCAL_MODULE:= libmediaplayerservice
 
