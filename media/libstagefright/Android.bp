@@ -146,14 +146,6 @@ cc_library_shared {
             // enable experiments only in userdebug and eng builds
             cflags: ["-DENABLE_STAGEFRIGHT_EXPERIMENTS"],
         },
-        lineage: {
-	    use_samsung_colorformat: {
-	        cflags: ["-DUSE_SAMSUNG_COLORFORMAT"],
-	    },
-            exynos4_enhancements: {
-	        cflags: ["-DEXYNOS4_ENHANCEMENTS"],
-            },
-        },
     },
 
     sanitize: {
