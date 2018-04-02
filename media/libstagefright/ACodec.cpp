@@ -1112,12 +1112,39 @@ status_t ACodec::setupNativeWindowSizeFormatAndUsage(
     memset(&mLastNativeWindowCrop, 0, sizeof(mLastNativeWindowCrop));
     mLastNativeWindowDataSpace = HAL_DATASPACE_UNKNOWN;
 
+    // In case of Samsung decoders, we set proper native color format for the Native Window
+    enum {
+        HAL_PIXEL_FORMAT_YCbCr_420_P                = 0x101,
+        HAL_PIXEL_FORMAT_YCbCr_420_SP               = 0x105,
+    };
+
+    OMX_COLOR_FORMATTYPE eNativeColorFormat = def.format.video.eColorFormat;
+    if (!strcasecmp(mComponentName.c_str(), "OMX.SEC.AVC.Decoder")
+        || !strcasecmp(mComponentName.c_str(), "OMX.SEC.FP.AVC.Decoder")
+        || !strcasecmp(mComponentName.c_str(), "OMX.SEC.MPEG4.Decoder")
+        || !strcasecmp(mComponentName.c_str(), "OMX.Exynos.AVC.Decoder")) {
+        switch (eNativeColorFormat) {
+            case OMX_COLOR_FormatYUV420SemiPlanar:
+                eNativeColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_SP;
+                break;
+            case OMX_COLOR_FormatYUV420Planar:
+            default:
+                eNativeColorFormat = (OMX_COLOR_FORMATTYPE)HAL_PIXEL_FORMAT_YCbCr_420_P;
+                break;
+        }
+        ALOGD("%s: %s colorformat:%d => %d", __func__, mComponentName.c_str(),
+            def.format.video.eColorFormat, eNativeColorFormat);
+    } else {
+        ALOGD("%s: %s colorformat:%d", __func__, mComponentName.c_str(), eNativeColorFormat);
+    }
+
+
     ALOGV("gralloc usage: %#x(OMX) => %#x(ACodec)", omxUsage, usage);
     return setNativeWindowSizeFormatAndUsage(
             nativeWindow,
             def.format.video.nFrameWidth,
             def.format.video.nFrameHeight,
-            def.format.video.eColorFormat,
+            eNativeColorFormat,
             mRotationDegrees,
             usage,
             reconnect);
