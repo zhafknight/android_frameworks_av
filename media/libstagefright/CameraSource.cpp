@@ -44,6 +44,8 @@
 
 namespace android {
 
+static const char PIXEL_FORMAT_YUV420SP_NV21[] = "nv21";
+
 static const int64_t CAMERA_SOURCE_TIMEOUT_NS = 3000000000LL;
 
 struct CameraSourceListener : public CameraListener {
@@ -146,6 +148,11 @@ static int32_t getColorFormat(const char* colorFormat) {
         return OMX_COLOR_FormatYUV420SemiPlanar;
     }
 
+    if (!strcmp(colorFormat, PIXEL_FORMAT_YUV420SP_NV21)) {
+        static const int OMX_SEC_COLOR_FormatNV21Linear = 0x7F000011;
+        return OMX_SEC_COLOR_FormatNV21Linear;
+    }
+
     if (!strcmp(colorFormat, CameraParameters::PIXEL_FORMAT_YUV422I)) {
         return OMX_COLOR_FormatYCbYCr;
     }
@@ -169,7 +176,7 @@ static int32_t getColorFormat(const char* colorFormat) {
     ALOGE("Uknown color format (%s), please add it to "
          "CameraSource::getColorFormat", colorFormat);
 
-    CHECK(!"Unknown color format");
+    //CHECK(!"Unknown color format");
     return -1;
 }
 
