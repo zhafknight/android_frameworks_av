@@ -287,7 +287,7 @@ void CameraOfflineSessionClient::notifyShutter(const CaptureResultExtras& result
     }
 }
 
-status_t CameraOfflineSessionClient::notifyActive(float maxPreviewFps __unused) {
+status_t CameraOfflineSessionClient::notifyActive() {
     return startCameraStreamingOps();
 }
 
@@ -340,20 +340,6 @@ void CameraOfflineSessionClient::notifyRepeatingRequestError(long /*lastFrameNum
     ALOGE("%s: Unexpected repeating request error in offline mode!", __FUNCTION__);
     notifyError(hardware::camera2::ICameraDeviceCallbacks::ERROR_CAMERA_DEVICE,
                 CaptureResultExtras());
-}
-
-status_t CameraOfflineSessionClient::injectCamera(const String8& injectedCamId,
-            sp<CameraProviderManager> manager) {
-    ALOGV("%s: This client doesn't support the injection camera. injectedCamId: %s providerPtr: %p",
-            __FUNCTION__, injectedCamId.string(), manager.get());
-
-    return OK;
-}
-
-status_t CameraOfflineSessionClient::stopInjection() {
-    ALOGV("%s: This client doesn't support the injection camera.", __FUNCTION__);
-
-    return OK;
 }
 
 // ----------------------------------------------------------------------------

@@ -65,7 +65,6 @@ typedef struct camera_capture_result {
 typedef struct camera_shutter_msg {
     uint32_t frame_number;
     uint64_t timestamp;
-    uint64_t readout_timestamp;
 } camera_shutter_msg_t;
 
 typedef struct camera_error_msg {
@@ -102,10 +101,9 @@ typedef enum {
 } ERROR_BUF_STRATEGY;
 
 struct InFlightRequest {
+
     // Set by notify() SHUTTER call.
     nsecs_t shutterTimestamp;
-    // Set by notify() SHUTTER call with readout time.
-    nsecs_t shutterReadoutTimestamp;
     // Set by process_capture_result().
     nsecs_t sensorTimestamp;
     int     requestStatus;
@@ -142,11 +140,6 @@ struct InFlightRequest {
     // high speed recording request list, this flag will be true. If the request list
     // is not for constrained high speed recording, this flag will also be true.
     bool hasCallback;
-
-    // Minimum expected frame duration for this request
-    // For manual captures, equal to the max of requested exposure time and frame duration
-    // For auto-exposure modes, equal to 1/(higher end of target FPS range)
-    nsecs_t minExpectedDuration;
 
     // Maximum expected frame duration for this request.
     // For manual captures, equal to the max of requested exposure time and frame duration
@@ -192,8 +185,8 @@ struct InFlightRequest {
     // Current output transformation
     int32_t transform;
 
-    static const nsecs_t kDefaultMinExpectedDuration = 33333333; // 33 ms
-    static const nsecs_t kDefaultMaxExpectedDuration = 100000000; // 100 ms
+    // TODO: dedupe
+    static const nsecs_t kDefaultExpectedDuration = 100000000; // 100 ms
 
     // Default constructor needed by KeyedVector
     InFlightRequest() :
@@ -204,8 +197,7 @@ struct InFlightRequest {
             numBuffersLeft(0),
             hasInputBuffer(false),
             hasCallback(true),
-            minExpectedDuration(kDefaultMinExpectedDuration),
-            maxExpectedDuration(kDefaultMaxExpectedDuration),
+            maxExpectedDuration(kDefaultExpectedDuration),
             skipResultMetadata(false),
             errorBufStrategy(ERROR_BUF_CACHE),
             stillCapture(false),
@@ -216,7 +208,7 @@ struct InFlightRequest {
     }
 
     InFlightRequest(int numBuffers, CaptureResultExtras extras, bool hasInput,
-            bool hasAppCallback, nsecs_t minDuration, nsecs_t maxDuration,
+            bool hasAppCallback, nsecs_t maxDuration,
             const std::set<std::set<String8>>& physicalCameraIdSet, bool isStillCapture,
             bool isZslCapture, bool rotateAndCropAuto, const std::set<std::string>& idsWithZoom,
             nsecs_t requestNs, const SurfaceMap& outSurfaces = SurfaceMap{}) :
@@ -228,7 +220,6 @@ struct InFlightRequest {
             resultExtras(extras),
             hasInputBuffer(hasInput),
             hasCallback(hasAppCallback),
-            minExpectedDuration(minDuration),
             maxExpectedDuration(maxDuration),
             skipResultMetadata(false),
             errorBufStrategy(ERROR_BUF_CACHE),

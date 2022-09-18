@@ -20,8 +20,6 @@ import android.hardware.ICamera;
 import android.hardware.ICameraClient;
 import android.hardware.camera2.ICameraDeviceUser;
 import android.hardware.camera2.ICameraDeviceCallbacks;
-import android.hardware.camera2.ICameraInjectionCallback;
-import android.hardware.camera2.ICameraInjectionSession;
 import android.hardware.camera2.params.VendorTagDescriptor;
 import android.hardware.camera2.params.VendorTagDescriptorCache;
 import android.hardware.camera2.utils.ConcurrentCameraIdCombination;
@@ -167,18 +165,8 @@ interface ICameraService
     boolean supportsCameraApi(String cameraId, int apiVersion);
     // Determines if a cameraId is a hidden physical camera of a logical multi-camera.
     boolean isHiddenPhysicalCamera(String cameraId);
-    // Inject the external camera to replace the internal camera session.
-    ICameraInjectionSession injectCamera(String packageName, String internalCamId,
-            String externalCamId, in ICameraInjectionCallback CameraInjectionCallback);
 
     void setTorchMode(String cameraId, boolean enabled, IBinder clientBinder);
-
-    // Change the brightness level of the flash unit associated with cameraId to strengthLevel.
-    // If the torch is in OFF state and strengthLevel > 0 then the torch will also be turned ON.
-    void turnOnTorchWithStrengthLevel(String cameraId, int strengthLevel, IBinder clientBinder);
-
-    // Get the brightness level of the flash unit associated with cameraId.
-    int getTorchStrengthLevel(String cameraId);
 
     /**
      * Notify the camera service of a system event.  Should only be called from system_server.
@@ -187,8 +175,6 @@ interface ICameraService
      */
     const int EVENT_NONE = 0;
     const int EVENT_USER_SWITCHED = 1; // The argument is the set of new foreground user IDs.
-    const int EVENT_USB_DEVICE_ATTACHED = 2; // The argument is the deviceId and vendorId
-    const int EVENT_USB_DEVICE_DETACHED = 3; // The argument is the deviceId and vendorId
     oneway void notifySystemEvent(int eventId, in int[] args);
 
     /**

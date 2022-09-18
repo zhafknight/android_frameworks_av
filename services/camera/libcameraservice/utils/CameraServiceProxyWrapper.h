@@ -48,9 +48,8 @@ private:
         void onOpen();
         void onClose(int32_t latencyMs);
         void onStreamConfigured(int operatingMode, bool internalReconfig, int32_t latencyMs);
-        void onActive(float maxPreviewFps);
+        void onActive();
         void onIdle(int64_t requestCount, int64_t resultErrorCount, bool deviceError,
-                const std::string& userTag, int32_t videoStabilizationMode,
                 const std::vector<hardware::CameraStreamStats>& streamStats);
     };
 
@@ -82,12 +81,11 @@ public:
             int32_t latencyMs);
 
     // Session state becomes active
-    static void logActive(const String8& id, float maxPreviewFps);
+    static void logActive(const String8& id);
 
     // Session state becomes idle
     static void logIdle(const String8& id,
             int64_t requestCount, int64_t resultErrorCount, bool deviceError,
-            const std::string& userTag, int32_t videoStabilizationMode,
             const std::vector<hardware::CameraStreamStats>& streamStats);
 
     // Ping camera service proxy for user update
