@@ -35,7 +35,6 @@
 #include "device3/StatusTracker.h"
 #include "binder/Status.h"
 #include "FrameProducer.h"
-#include "utils/IPCTransport.h"
 
 #include "CameraOfflineSessionBase.h"
 
@@ -60,9 +59,6 @@ typedef enum camera_stream_configuration_mode {
     CAMERA_VENDOR_STREAM_CONFIGURATION_MODE_START = 0x8000
 } camera_stream_configuration_mode_t;
 
-// Matches definition of camera3_jpeg_blob in camera3.h and HIDL definition
-// device@3.2:types.hal, needs to stay around till HIDL support is removed (for
-// HIDL -> AIDL cameraBlob translation)
 typedef struct camera_jpeg_blob {
     uint16_t jpeg_blob_id;
     uint32_t jpeg_size;
@@ -92,8 +88,6 @@ class CameraDeviceBase : public virtual FrameProducer {
   public:
     virtual ~CameraDeviceBase();
 
-    virtual IPCTransport getTransportType() const = 0;
-
     /**
      * The device vendor tag ID
      */
@@ -108,24 +102,13 @@ class CameraDeviceBase : public virtual FrameProducer {
     virtual status_t dumpWatchedEventsToVector(std::vector<std::string> &out) = 0;
 
     /**
-     * The physical camera device's static characteristics metadata buffer, or
-     * the logical camera's static characteristics if physical id is empty.
+     * The physical camera device's static characteristics metadata buffer
      */
     virtual const CameraMetadata& infoPhysical(const String8& physicalId) const = 0;
 
     struct PhysicalCameraSettings {
         std::string cameraId;
         CameraMetadata metadata;
-
-        // Whether the physical camera supports testPatternMode/testPatternData
-        bool mHasTestPatternModeTag = true;
-        bool mHasTestPatternDataTag = true;
-
-        // Original value of TEST_PATTERN_MODE and DATA so that they can be
-        // restored when sensor muting is turned off
-        int32_t mOriginalTestPatternMode = 0;
-        int32_t mOriginalTestPatternData[4] = {};
-
     };
     typedef List<PhysicalCameraSettings> PhysicalCameraSettingsList;
 
@@ -188,11 +171,7 @@ class CameraDeviceBase : public virtual FrameProducer {
             std::vector<int> *surfaceIds = nullptr,
             int streamSetId = camera3::CAMERA3_STREAM_SET_ID_INVALID,
             bool isShared = false, bool isMultiResolution = false,
-            uint64_t consumerUsage = 0,
-            int64_t dynamicProfile = ANDROID_REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES_MAP_STANDARD,
-            int64_t streamUseCase = ANDROID_SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT,
-            int timestampBase = OutputConfiguration::TIMESTAMP_BASE_DEFAULT,
-            int mirrorMode = OutputConfiguration::MIRROR_MODE_AUTO) = 0;
+            uint64_t consumerUsage = 0) = 0;
 
     /**
      * Create an output stream of the requested size, format, rotation and
@@ -209,11 +188,7 @@ class CameraDeviceBase : public virtual FrameProducer {
             std::vector<int> *surfaceIds = nullptr,
             int streamSetId = camera3::CAMERA3_STREAM_SET_ID_INVALID,
             bool isShared = false, bool isMultiResolution = false,
-            uint64_t consumerUsage = 0,
-            int64_t dynamicProfile = ANDROID_REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES_MAP_STANDARD,
-            int64_t streamUseCase = ANDROID_SCALER_AVAILABLE_STREAM_USE_CASES_DEFAULT,
-            int timestampBase = OutputConfiguration::TIMESTAMP_BASE_DEFAULT,
-            int mirrorMode = OutputConfiguration::MIRROR_MODE_AUTO) = 0;
+            uint64_t consumerUsage = 0) = 0;
 
     /**
      * Create an input stream of width, height, and format.
@@ -234,12 +209,10 @@ class CameraDeviceBase : public virtual FrameProducer {
         android_dataspace dataSpace;
         bool dataSpaceOverridden;
         android_dataspace originalDataSpace;
-        int64_t dynamicRangeProfile;
 
         StreamInfo() : width(0), height(0), format(0), formatOverridden(false), originalFormat(0),
                 dataSpace(HAL_DATASPACE_UNKNOWN), dataSpaceOverridden(false),
-                originalDataSpace(HAL_DATASPACE_UNKNOWN),
-                dynamicRangeProfile(ANDROID_REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES_MAP_STANDARD){}
+                originalDataSpace(HAL_DATASPACE_UNKNOWN) {}
         /**
          * Check whether the format matches the current or the original one in case
          * it got overridden.
@@ -324,8 +297,7 @@ class CameraDeviceBase : public virtual FrameProducer {
      * Get Jpeg buffer size for a given jpeg resolution.
      * Negative values are error codes.
      */
-    virtual ssize_t getJpegBufferSize(const CameraMetadata &info, uint32_t width,
-            uint32_t height) const = 0;
+    virtual ssize_t getJpegBufferSize(uint32_t width, uint32_t height) const = 0;
 
     /**
      * Connect HAL notifications to a listener. Overwrites previous

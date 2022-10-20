@@ -38,6 +38,8 @@
 
 namespace android {
 
+using ResultMetadataQueue = hardware::MessageQueue<uint8_t, hardware::kSynchronizedReadWrite>;
+
 namespace camera3 {
 
     /**
@@ -50,8 +52,7 @@ namespace camera3 {
             bool useHalBufManager,
             sp<NotificationListener> listener, // Only needed when outputSurfaces is not empty
             const camera_stream_buffer_t *outputBuffers,
-            size_t numBuffers, nsecs_t timestamp,
-            nsecs_t readoutTimestamp, bool requested, nsecs_t requestTimeNs,
+            size_t numBuffers, nsecs_t timestamp, bool requested, nsecs_t requestTimeNs,
             SessionStatsBuilder& sessionStatsBuilder, bool timestampIncreasing = true,
             // The following arguments are only meant for surface sharing use case
             const SurfaceMap& outputSurfaces = SurfaceMap{},
@@ -93,6 +94,7 @@ namespace camera3 {
         const metadata_vendor_id_t vendorTagId;
         const CameraMetadata& deviceInfo;
         const std::unordered_map<std::string, CameraMetadata>& physicalDeviceInfoMap;
+        std::unique_ptr<ResultMetadataQueue>& fmq;
         std::unordered_map<std::string, camera3::DistortionMapper>& distortionMappers;
         std::unordered_map<std::string, camera3::ZoomRatioMapper>& zoomRatioMappers;
         std::unordered_map<std::string, camera3::RotateAndCropMapper>& rotateAndCropMappers;
@@ -105,11 +107,19 @@ namespace camera3 {
         InflightRequestUpdateInterface& inflightIntf;
         BufferRecordsInterface& bufferRecordsIntf;
         bool legacyClient;
-        nsecs_t& minFrameDuration;
     };
 
-    void processCaptureResult(CaptureOutputStates& states, const camera_capture_result *result);
-    void notify(CaptureOutputStates& states, const camera_notify_msg *msg);
+    // Handle one capture result. Assume callers hold the lock to serialize all
+    // processCaptureResult calls
+    void processOneCaptureResultLocked(
+            CaptureOutputStates& states,
+            const hardware::camera::device::V3_2::CaptureResult& result,
+            const hardware::hidl_vec<
+                    hardware::camera::device::V3_4::PhysicalCameraMetadata> physicalCameraMetadata);
+
+    // Handle one notify message
+    void notify(CaptureOutputStates& states,
+            const hardware::camera::device::V3_2::NotifyMsg& msg);
 
     struct RequestBufferStates {
         const String8& cameraId;
@@ -122,6 +132,10 @@ namespace camera3 {
         RequestBufferInterface& reqBufferIntf;
     };
 
+    void requestStreamBuffers(RequestBufferStates& states,
+            const hardware::hidl_vec<hardware::camera::device::V3_5::BufferRequest>& bufReqs,
+            hardware::camera::device::V3_5::ICameraDeviceCallback::requestStreamBuffers_cb _hidl_cb);
+
     struct ReturnBufferStates {
         const String8& cameraId;
         const bool useHalBufManager;
@@ -129,6 +143,9 @@ namespace camera3 {
         SessionStatsBuilder& sessionStatsBuilder;
         BufferRecordsInterface& bufferRecordsIntf;
     };
+
+    void returnStreamBuffers(ReturnBufferStates& states,
+            const hardware::hidl_vec<hardware::camera::device::V3_2::StreamBuffer>& buffers);
 
     struct FlushInflightReqStates {
         const String8& cameraId;
