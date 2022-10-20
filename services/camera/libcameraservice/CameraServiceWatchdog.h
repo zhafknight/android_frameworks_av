@@ -26,7 +26,7 @@
  *   and single call monitoring differently. See function documentation for
  *   more details.
  */
-#pragma once
+
 #include <chrono>
 #include <thread>
 #include <time.h>
@@ -61,7 +61,7 @@ public:
     /** Used to wrap monitored calls in start and stop functions using custom timer values */
     template<typename T>
     auto watchThread(T func, uint32_t tid, uint32_t cycles, uint32_t cycleLength) {
-        decltype(func()) res;
+        auto res = NULL;
 
         if (cycles != mMaxCycles || cycleLength != mCycleLengthMs) {
             // Create another instance of the watchdog to prevent disruption
@@ -84,9 +84,10 @@ public:
     /** Used to wrap monitored calls in start and stop functions using class timer values */
     template<typename T>
     auto watchThread(T func, uint32_t tid) {
+        auto res = NULL;
 
         start(tid);
-        auto res = func();
+        res = func();
         stop(tid);
 
         return res;
