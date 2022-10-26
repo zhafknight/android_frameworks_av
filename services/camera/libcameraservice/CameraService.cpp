@@ -1273,17 +1273,13 @@ Status CameraService::validateClientPermissionsLocked(const String8& cameraId,
     clientPid = callingPid;
 
     userid_t clientUserId = multiuser_get_user_id(clientUid);
-
     // Only allow clients who are being used by the current foreground device user, unless calling
     // from our own process OR the caller is using the cameraserver's HIDL interface.
     if (getCurrentServingCall() != BinderCallType::HWBINDER && callingPid != getpid() &&
             (mAllowedUsers.find(clientUserId) == mAllowedUsers.end())) {
-        ALOGE("CameraService::connect X (PID %d) rejected (cannot connect from "
+        ALOGW("CameraService::connect X (PID %d) should be rejected (should not connect from "
                 "device user %d, currently allowed device users: %s)", callingPid, clientUserId,
                 toString(mAllowedUsers).string());
-        return STATUS_ERROR_FMT(ERROR_PERMISSION_DENIED,
-                "Callers from device user %d are not currently allowed to connect to camera \"%s\"",
-                clientUserId, cameraId.string());
     }
 
     return Status::ok();
