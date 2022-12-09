@@ -66,17 +66,6 @@ void CameraServiceWatchdog::requestExit()
     }
 }
 
-void CameraServiceWatchdog::setEnabled(bool enable)
-{
-    AutoMutex _l(mEnabledLock);
-
-    if (enable) {
-        mEnabled = true;
-    } else {
-        mEnabled = false;
-    }
-}
-
 void CameraServiceWatchdog::stop(uint32_t tid)
 {
     AutoMutex _l(mWatchdogLock);

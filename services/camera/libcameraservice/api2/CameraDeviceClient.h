@@ -206,8 +206,6 @@ public:
     virtual status_t      stopWatchingTags(int out);
     virtual status_t      dumpWatchedEventsToVector(std::vector<std::string> &out);
 
-    virtual status_t      setCameraServiceWatchdog(bool enabled);
-
     /**
      * Device listener interface
      */

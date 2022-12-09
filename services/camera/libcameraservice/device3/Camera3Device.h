@@ -281,11 +281,6 @@ class Camera3Device :
      */
     status_t setCameraMute(bool enabled);
 
-    /**
-     * Enables/disables camera service watchdog
-     */
-    status_t setCameraServiceWatchdog(bool enabled);
-
     // Get the status trackeer for the camera device
     wp<camera3::StatusTracker> getStatusTracker() { return mStatusTracker; }
 
