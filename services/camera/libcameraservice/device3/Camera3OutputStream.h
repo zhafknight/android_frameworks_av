@@ -264,7 +264,6 @@ class Camera3OutputStream :
 
     void setImageDumpMask(int mask) { mImageDumpMask = mask; }
     bool shouldLogError(status_t res);
-    void onCachedBufferQueued();
 
   protected:
     Camera3OutputStream(int id, camera_stream_type_t type,
