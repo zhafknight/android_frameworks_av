@@ -69,9 +69,7 @@ bool PreviewFrameSpacer::threadLoop() {
     }
 
     // Cache the frame to match readout time interval, for up to kMaxFrameWaitTime
-    // Because the code between here and queueBuffer() takes time to execute, make sure the
-    // presentationInterval is slightly shorter than readoutInterval.
-    nsecs_t expectedQueueTime = mLastCameraPresentTime + readoutInterval - kFrameAdjustThreshold;
+    nsecs_t expectedQueueTime = mLastCameraPresentTime + readoutInterval;
     nsecs_t frameWaitTime = std::min(kMaxFrameWaitTime, expectedQueueTime - currentTime);
     if (frameWaitTime > 0 && mPendingBuffers.size() < 2) {
         mBufferCond.waitRelative(mLock, frameWaitTime);
@@ -80,9 +78,9 @@ bool PreviewFrameSpacer::threadLoop() {
         }
         currentTime = systemTime();
     }
-    ALOGV("%s: readoutInterval %" PRId64 ", waited for %" PRId64
+    ALOGV("%s: readoutInterval %" PRId64 ", queueInterval %" PRId64 ", waited for %" PRId64
             ", timestamp %" PRId64, __FUNCTION__, readoutInterval,
-            mPendingBuffers.size() < 2 ? frameWaitTime : 0, buffer.timestamp);
+            currentTime - mLastCameraPresentTime, frameWaitTime, buffer.timestamp);
     mPendingBuffers.pop();
     queueBufferToClientLocked(buffer, currentTime);
     return true;
