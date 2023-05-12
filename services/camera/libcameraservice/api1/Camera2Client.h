@@ -111,8 +111,7 @@ public:
             int clientPid,
             uid_t clientUid,
             int servicePid,
-            bool overrideForPerfClass,
-            bool overrideToPortrait);
+            bool overrideForPerfClass);
 
     virtual ~Camera2Client();
 
