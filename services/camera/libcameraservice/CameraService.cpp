@@ -335,9 +335,8 @@ void CameraService::filterSPerfClassCharacteristicsLocked() {
         int facing = -1;
         int orientation = 0;
         String8 cameraId8(cameraId.c_str());
-        int portraitRotation;
-        getDeviceVersion(cameraId8, /*overrideToPortrait*/false, /*out*/&portraitRotation,
-                /*out*/&facing, /*out*/&orientation);
+        getDeviceVersion(cameraId8, /*overrideToPortrait*/false, /*out*/&facing,
+                /*out*/&orientation);
         if (facing == -1) {
             ALOGE("%s: Unable to get camera device \"%s\" facing", __FUNCTION__, cameraId.c_str());
             return;
