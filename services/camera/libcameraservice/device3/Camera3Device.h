@@ -286,13 +286,6 @@ class Camera3Device :
      */
     status_t setCameraServiceWatchdog(bool enabled);
 
-    // Set stream use case overrides
-    void setStreamUseCaseOverrides(
-            const std::vector<int64_t>& useCaseOverrides);
-
-    // Clear stream use case overrides
-    void clearStreamUseCaseOverrides();
-
     // Get the status trackeer for the camera device
     wp<camera3::StatusTracker> getStatusTracker() { return mStatusTracker; }
 
@@ -1436,8 +1429,6 @@ class Camera3Device :
             createCamera3DeviceInjectionMethods(wp<Camera3Device>) = 0;
 
     sp<Camera3DeviceInjectionMethods> mInjectionMethods;
-
-    void overrideStreamUseCaseLocked();
 
 }; // class Camera3Device
 

@@ -86,11 +86,6 @@ public:
 
     status_t setCameraServiceWatchdog(bool enabled) override;
 
-    void setStreamUseCaseOverrides(
-            const std::vector<int64_t>& useCaseOverrides) override;
-
-    void clearStreamUseCaseOverrides() override;
-
     // permissions management
     status_t startCameraOps() override;
     status_t finishCameraOps() override;
