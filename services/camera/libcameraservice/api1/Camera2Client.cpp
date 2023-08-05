@@ -62,8 +62,7 @@ Camera2Client::Camera2Client(const sp<CameraService>& cameraService,
         uid_t clientUid,
         int servicePid,
         bool overrideForPerfClass,
-        bool overrideToPortrait,
-        bool forceSlowJpegMode):
+        bool overrideToPortrait):
         Camera2ClientBase(cameraService, cameraClient, clientPackageName,
                 false/*systemNativeClient - since no ndk for api1*/, clientFeatureId,
                 cameraDeviceId, api1CameraId, cameraFacing, sensorOrientation, clientPid,
@@ -79,9 +78,6 @@ Camera2Client::Camera2Client(const sp<CameraService>& cameraService,
 
     SharedParameters::Lock l(mParameters);
     l.mParameters.state = Parameters::DISCONNECTED;
-    if (forceSlowJpegMode) {
-        l.mParameters.isSlowJpegModeForced = true;
-    }
 }
 
 status_t Camera2Client::initialize(sp<CameraProviderManager> manager, const String8& monitorTags) {
